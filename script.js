@@ -326,7 +326,7 @@ function displayNewUrls() {
     if (newUrls.length > 0) {
         newUrlsContainer.classList.remove('hidden');
         newUrlsList.innerHTML = newUrls.map(url => 
-            `<div>${url.slug}</div>`
+            `<div title="${url.slug}">${url.slug}</div>`
         ).join('');
     } else {
         newUrlsContainer.classList.add('hidden');
@@ -338,7 +338,7 @@ function displayOldUrls() {
     if (oldUrls.length > 0) {
         oldUrlsContainer.classList.remove('hidden');
         oldUrlsList.innerHTML = oldUrls.map(url => 
-            `<div>${url.slug}</div>`
+            `<div title="${url.slug}">${url.slug}</div>`
         ).join('');
     } else {
         oldUrlsContainer.classList.add('hidden');
@@ -397,6 +397,8 @@ function createTableRow(oldUrl, index, matchingNewUrl) {
     // Old URL cell
     const oldUrlCell = document.createElement('td');
     oldUrlCell.textContent = oldUrl.slug;
+    // Add title attribute to show full path on hover
+    oldUrlCell.title = oldUrl.slug;
     row.appendChild(oldUrlCell);
     
     // Status cell
@@ -418,6 +420,8 @@ function createTableRow(oldUrl, index, matchingNewUrl) {
     // Only set a value if there's a matching URL, otherwise leave it empty
     if (matchingNewUrl) {
         newUrlInput.value = matchingNewUrl.slug;
+        // Add title attribute to input for full path on hover
+        newUrlInput.title = matchingNewUrl.slug;
     } else {
         newUrlInput.value = '';
     }
@@ -427,6 +431,9 @@ function createTableRow(oldUrl, index, matchingNewUrl) {
     // Add event listener to handle input changes
     newUrlInput.addEventListener('input', function(e) {
         updateRedirectCount();
+        
+        // Update title attribute to match current value
+        e.target.title = e.target.value;
         
         // Visual feedback when user inputs a target URL
         const hasValue = e.target.value.trim() !== '';

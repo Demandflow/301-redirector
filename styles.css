@@ -165,8 +165,8 @@ table {
 /* Column widths */
 th:nth-child(1),
 td:nth-child(1) {
-    width: 25%;
-    /* Reduce width of old URL column */
+    width: 30%;
+    /* Increased width of old URL column to accommodate longer paths */
 }
 
 th:nth-child(2),
@@ -177,7 +177,7 @@ td:nth-child(2) {
 
 th:nth-child(3),
 td:nth-child(3) {
-    width: 45%;
+    width: 40%;
     /* Target URL column gets more space */
 }
 
@@ -195,7 +195,7 @@ td {
     border-bottom: 1px solid #eee;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
+    /* Remove nowrap to allow multi-line display */
 }
 
 /* Cell content can wrap when needed */
@@ -203,6 +203,21 @@ td:nth-child(1),
 td:nth-child(3) {
     white-space: normal;
     word-break: break-word;
+    /* Ensure URLs with multiple segments wrap properly */
+    max-height: 60px;
+    /* Add max height to prevent extremely tall rows */
+    overflow-y: auto;
+    /* Add scrolling for very long content */
+}
+
+/* Add hover effect to show the full path when it's truncated */
+td:nth-child(1):hover,
+td:nth-child(3):hover {
+    overflow: visible;
+    white-space: normal;
+    word-break: break-word;
+    position: relative;
+    z-index: 1;
 }
 
 th {
@@ -535,4 +550,34 @@ input::placeholder {
     to {
         opacity: 0;
     }
+}
+
+.url-list {
+    max-height: 200px;
+    overflow-y: auto;
+    background: #f9f9fb;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    margin-top: 10px;
+    padding: 6px;
+}
+
+.url-list div {
+    padding: 3px 6px;
+    font-size: 13px;
+    border-bottom: 1px solid #f0f0f0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.url-list div:last-child {
+    border-bottom: none;
+}
+
+.url-list div:hover {
+    background-color: #f0f7ff;
+    overflow: visible;
+    white-space: normal;
+    word-wrap: break-word;
 }
