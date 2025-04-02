@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>301 Redirect Manager</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <h1>301 Redirect Manager</h1>
+
+    <div class="instructions">
+        <h3>How to use this tool:</h3>
+        <ol>
+            <li><strong>Step 1:</strong> Upload old URLs CSV (from Screaming Frog) or manually add old URLs</li>
+            <li><strong>Step 2:</strong> Upload new URLs CSV or manually add new slugs</li>
+            <li><strong>Step 3:</strong> Enter target URLs for unmatched URLs that need mapping (highlighted at the top
+                with red borders)</li>
+            <li><strong>Step 4:</strong> Verify all mappings, then click "Export to CSV" to download a redirects.csv
+                file</li>
+        </ol>
+        <p><strong>Note:</strong> URLs with status codes 301 or 404 are automatically filtered out from the old URLs.
+        </p>
+        <p><strong>Important:</strong> If your site already has existing redirects in place, you'll need to manually add
+            these as old URLs to ensure they're included in your final redirect list.
+        </p>
+        <p><strong>Pro Tips:</strong></p>
+        <ul>
+            <li>You can add old URLs individually using the manual entry option - useful for small sets of URLs</li>
+            <li>URLs needing attention are at the top with empty target fields - add a mapping to turn them green</li>
+            <li>The status will change to "Mapped" once you enter a target URL</li>
+            <li>URLs with exact matches are moved to the bottom and grayed out</li>
+            <li>You can set a URL's action to "Skip" from the dropdown (it will be crossed out)</li>
+            <li>Use the bulk action buttons to quickly manage multiple redirects at once</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Domain Settings <span class="optional-label">(Optional)</span></h2>
+        <div class="form-group">
+            <label for="domainInput">Your Domain (only needed if your URLs include the full domain):</label>
+            <input type="text" id="domainInput" class="domain-input" placeholder="https://www.example.com" />
+            <p class="help-text">If your URLs are already in slug format (e.g., "/path/to/page"), you can leave this
+                blank.</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Upload Old URLs (from Screaming Frog)</h2>
+        <div class="form-group">
+            <label for="oldCsvInput">Select CSV file with old URLs:</label>
+            <input type="file" id="oldCsvInput" accept=".csv" />
+            <div id="oldUrlStatus" class="status-message"></div>
+        </div>
+
+        <div class="form-group">
+            <label>Manually add an old URL/slug:</label>
+            <div class="manual-add">
+                <input type="text" id="manualOldUrlInput" placeholder="/old-page" />
+                <button id="addManualOldUrl">Add</button>
+            </div>
+            <div id="manualOldUrlStatus" class="status-message"></div>
+        </div>
+
+        <div id="oldUrlsContainer" class="hidden">
+            <h3>Current Old URLs:</h3>
+            <div id="oldUrlsList"></div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Add New URLs</h2>
+        <div class="form-group">
+            <label for="newCsvInput">Upload CSV file with new URLs (optional):</label>
+            <input type="file" id="newCsvInput" accept=".csv" />
+            <div id="newUrlStatus" class="status-message"></div>
+        </div>
+
+        <div class="form-group">
+            <label>Manually add a new URL/slug:</label>
+            <div class="manual-add">
+                <input type="text" id="manualUrlInput" placeholder="/new-slug" />
+                <button id="addManualUrl">Add</button>
+            </div>
+            <div id="manualUrlStatus" class="status-message"></div>
+        </div>
+
+        <div id="newUrlsContainer" class="hidden">
+            <h3>Current New URLs:</h3>
+            <div id="newUrlsList"></div>
+        </div>
+    </div>
+
+    <div id="redirectSection" class="section hidden">
+        <h2>Manage Redirects</h2>
+
+        <div class="bulk-actions">
+            <span class="bulk-label">Bulk Actions:</span>
+            <button id="checkAllBtn" class="bulk-btn">Set All to Redirect</button>
+            <button id="uncheckAllBtn" class="bulk-btn">Set All to Skip</button>
+            <button id="checkUnmappedBtn" class="bulk-btn">Redirect Unmapped</button>
+            <button id="checkMappedBtn" class="bulk-btn">Redirect Mapped</button>
+        </div>
+
+        <div class="redirect-table-container">
+            <table id="redirectTable">
+                <thead>
+                    <tr>
+                        <th>Source URL</th>
+                        <th>Status</th>
+                        <th>Target URL</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="redirectTableBody"></tbody>
+            </table>
+        </div>
+
+        <div class="export-section">
+            <div class="counts">
+                <p id="redirectCount">0 redirects selected</p>
+            </div>
+            <button id="exportCsv" disabled>Export to CSV</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

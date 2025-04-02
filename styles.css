@@ -1,0 +1,538 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h1 {
+    color: #2c3e50;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+}
+
+.optional-label {
+    font-size: 0.7em;
+    font-weight: normal;
+    color: #6c757d;
+    background-color: #f8f9fa;
+    padding: 2px 6px;
+    border-radius: 4px;
+    vertical-align: middle;
+    margin-left: 8px;
+}
+
+.help-text {
+    font-size: 0.85em;
+    color: #6c757d;
+    margin-top: 4px;
+    margin-bottom: 0;
+    font-style: italic;
+}
+
+.instructions {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    border-left: 4px solid #6c757d;
+}
+
+.section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+input[type="file"],
+input[type="text"],
+button {
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.manual-add {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* Bulk actions styling */
+.bulk-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    align-items: center;
+}
+
+.bulk-label {
+    font-weight: 600;
+    margin-right: 5px;
+}
+
+.bulk-btn {
+    font-size: 0.9em;
+    padding: 6px 10px;
+    background-color: #6c757d;
+}
+
+.bulk-btn:hover {
+    background-color: #5a6268;
+}
+
+#checkAllBtn {
+    background-color: #28a745;
+}
+
+#checkAllBtn:hover {
+    background-color: #218838;
+}
+
+#uncheckAllBtn {
+    background-color: #dc3545;
+}
+
+#uncheckAllBtn:hover {
+    background-color: #c82333;
+}
+
+#checkMappedBtn {
+    background-color: #007bff;
+}
+
+#checkMappedBtn:hover {
+    background-color: #0069d9;
+}
+
+#checkUnmappedBtn {
+    background-color: #17a2b8;
+}
+
+#checkUnmappedBtn:hover {
+    background-color: #138496;
+}
+
+/* Table styles - Notion-like */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 14px;
+    table-layout: fixed;
+    /* Add fixed layout for better column control */
+}
+
+/* Column widths */
+th:nth-child(1),
+td:nth-child(1) {
+    width: 25%;
+    /* Reduce width of old URL column */
+}
+
+th:nth-child(2),
+td:nth-child(2) {
+    width: 15%;
+    /* Mapping status column */
+}
+
+th:nth-child(3),
+td:nth-child(3) {
+    width: 45%;
+    /* Target URL column gets more space */
+}
+
+th:nth-child(4),
+td:nth-child(4) {
+    width: 15%;
+    /* Action column */
+}
+
+th,
+td {
+    padding: 12px 15px;
+    text-align: left;
+    border: none;
+    border-bottom: 1px solid #eee;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Cell content can wrap when needed */
+td:nth-child(1),
+td:nth-child(3) {
+    white-space: normal;
+    word-break: break-word;
+}
+
+th {
+    background-color: #f9f9fb;
+    color: #555;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-bottom: 2px solid #eee;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9fb;
+}
+
+tr:hover {
+    background-color: #f0f7ff !important;
+}
+
+/* Input styling in table cells - more like Notion */
+td input[type="text"] {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    background-color: #fff;
+}
+
+td input[type="text"]:hover {
+    border-color: #b3b3b3;
+    background-color: #fcfcfc;
+}
+
+td input[type="text"]:focus {
+    border-color: #4dabf7;
+    box-shadow: 0 0 0 2px rgba(77, 171, 247, 0.2);
+    outline: none;
+    background-color: #fff;
+}
+
+/* Status select styling - more like Notion */
+.status-select {
+    appearance: none;
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 30px;
+}
+
+.status-select:hover {
+    border-color: #b3b3b3;
+    background-color: #fcfcfc;
+}
+
+.status-select:focus {
+    border-color: #4dabf7;
+    box-shadow: 0 0 0 2px rgba(77, 171, 247, 0.2);
+    outline: none;
+    background-color: #fff;
+}
+
+/* Status options styling */
+.status-redirect {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    font-weight: 500;
+}
+
+.status-skip {
+    background-color: #f5f5f5;
+    color: #757575;
+    font-weight: 500;
+    text-decoration: line-through;
+}
+
+/* New styling for matched vs unmatched rows */
+.matched-row {
+    opacity: 0.85;
+    background-color: #f9f9fb !important;
+}
+
+.unmatched-row {
+    background-color: #fff;
+}
+
+/* Styling for URLs that need attention */
+.needs-attention {
+    border: 1px solid #ff8a80;
+    background-color: #fff8f7;
+}
+
+/* Styling for URLs that have been mapped */
+.has-mapping {
+    border: 1px solid #66bb6a;
+    background-color: #f5fff7;
+}
+
+/* Status classes - More compact for better fit */
+.match-found {
+    color: #43a047;
+    font-weight: 500;
+    background-color: #e8f5e9;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    font-size: 12px;
+}
+
+.no-match {
+    color: #e53935;
+    font-weight: 500;
+    background-color: #ffebee;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    font-size: 12px;
+}
+
+.mapped-status {
+    color: #1976d2;
+    font-weight: 500;
+    background-color: #e3f2fd;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    font-size: 12px;
+}
+
+.status-message {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.domain-input {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.hidden {
+    display: none;
+}
+
+.redirect-table-container {
+    overflow-x: auto;
+    max-height: 500px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+    margin-top: 20px;
+}
+
+/* Define a custom scrollbar for the table container */
+.redirect-table-container::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.redirect-table-container::-webkit-scrollbar-track {
+    background: #f5f5f5;
+    border-radius: 4px;
+}
+
+.redirect-table-container::-webkit-scrollbar-thumb {
+    background-color: #ddd;
+    border-radius: 4px;
+}
+
+.redirect-table-container::-webkit-scrollbar-thumb:hover {
+    background-color: #ccc;
+}
+
+/* Improved row styling */
+tr {
+    transition: background-color 0.2s ease;
+    cursor: default;
+}
+
+tr:hover td {
+    background-color: #f0f7ff;
+}
+
+.skipped-row td {
+    opacity: 0.65;
+    color: #999;
+    text-decoration: line-through;
+    background-color: #f9f9fb;
+}
+
+.skipped-row td input {
+    opacity: 0.65;
+}
+
+/* Enhanced export section */
+.export-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+    background-color: #f9f9fb;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.counts {
+    font-size: 0.9em;
+    color: #666;
+    background-color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+#exportCsv {
+    background-color: #4285f4;
+    font-weight: 500;
+    padding: 10px 16px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+#exportCsv:hover {
+    background-color: #3367d6;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+#exportCsv:disabled {
+    background-color: #ccc;
+    box-shadow: none;
+}
+
+/* Add a divider between unmatched and matched URLs */
+.matched-row:first-of-type td:first-child::before {
+    content: "URLs with Exact Matches";
+    display: block;
+    font-weight: 600;
+    font-size: 13px;
+    color: #666;
+    padding: 8px;
+    margin: -12px -15px 10px -15px;
+    background-color: #f3f4f6;
+    border-bottom: 1px solid #eee;
+}
+
+/* Add emphasis to placeholder text */
+input::placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+/* Animate the background color change when mapping is added */
+.has-mapping {
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* URL lists styling */
+#oldUrlsList,
+#newUrlsList {
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    font-size: 0.9em;
+    border: 1px solid #ddd;
+}
+
+#oldUrlsList div,
+#newUrlsList div {
+    padding: 2px 5px;
+    border-bottom: 1px solid #eee;
+}
+
+#oldUrlsList div:last-child,
+#newUrlsList div:last-child {
+    border-bottom: none;
+}
+
+/* Bulk action feedback message */
+.bulk-action-feedback {
+    margin-left: auto;
+    padding: 5px 10px;
+    background-color: #d4edda;
+    color: #155724;
+    border-radius: 4px;
+    font-size: 0.9em;
+    animation: fadeIn 0.3s ease-in, fadeOut 0.5s ease-out 1.5s;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
