@@ -12,29 +12,24 @@
     <h1>301 Redirect Manager</h1>
 
     <div class="instructions">
-        <h3>How to use this tool:</h3>
+        <h3>Instructions:</h3>
         <ol>
-            <li><strong>Step 1:</strong> Upload old URLs CSV (from Screaming Frog) or manually add old URLs</li>
-            <li><strong>Step 2:</strong> Upload new URLs CSV or manually add new slugs</li>
-            <li><strong>Step 3:</strong> Enter target URLs for unmatched URLs that need mapping (highlighted at the top
-                with red borders)</li>
-            <li><strong>Step 4:</strong> Verify all mappings, then click "Export to CSV" to download a redirects.csv
-                file</li>
+            <li>Optionally enter your domain to help with URL parsing.</li>
+            <li>Upload a CSV from Screaming Frog with your old URLs (e.g., old_site_urls.csv). URLs with status codes
+                301 or 404 will be automatically excluded.</li>
+            <li>Upload a CSV from Screaming Frog with your new URLs (e.g., new_site_urls.csv) or manually add new URLs
+                to help with matching.</li>
+            <li>In the redirects table, you'll see all your old URLs. The system will automatically match URLs that are
+                identical.</li>
+            <li>For URLs that don't have a match, you can select a target URL from the dropdown, which shows all
+                available new URLs. Just start typing to filter the list, or click to see all options.</li>
+            <li>You can also enter custom URLs in the dropdown if needed, but the tool will prioritize URLs from your
+                new site list for accuracy.</li>
+            <li>Use the bulk action buttons to quickly check/uncheck redirects.</li>
+            <li>When you're ready, click "Export to CSV" to generate your redirect map.</li>
         </ol>
-        <p><strong>Note:</strong> URLs with status codes 301 or 404 are automatically filtered out from the old URLs.
-        </p>
-        <p><strong>Important:</strong> If your site already has existing redirects in place, you'll need to manually add
-            these as old URLs to ensure they're included in your final redirect list.
-        </p>
-        <p><strong>Pro Tips:</strong></p>
-        <ul>
-            <li>You can add old URLs individually using the manual entry option - useful for small sets of URLs</li>
-            <li>URLs needing attention are at the top with empty target fields - add a mapping to turn them green</li>
-            <li>The status will change to "Mapped" once you enter a target URL</li>
-            <li>URLs with exact matches are moved to the bottom and grayed out</li>
-            <li>You can set a URL's action to "Skip" from the dropdown (it will be crossed out)</li>
-            <li>Use the bulk action buttons to quickly manage multiple redirects at once</li>
-        </ul>
+        <p><strong>Note:</strong> Matched rows will be grayed out and moved to the bottom of the list. URLs requiring
+            mapping will be highlighted.</p>
     </div>
 
     <div class="section">

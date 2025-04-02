@@ -581,3 +581,107 @@ input::placeholder {
     white-space: normal;
     word-wrap: break-word;
 }
+
+/* New styles for autocomplete */
+.autocomplete-container {
+    position: relative;
+    width: 100%;
+}
+
+.autocomplete-input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    background-color: #fff;
+}
+
+.autocomplete-dropdown {
+    display: none;
+    position: absolute;
+    width: 100%;
+    max-height: 300px;
+    overflow-y: auto;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    margin-top: 2px;
+}
+
+.autocomplete-dropdown.show {
+    display: block;
+}
+
+.autocomplete-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.autocomplete-item:hover {
+    background-color: #f0f7ff;
+}
+
+.autocomplete-item.exact-match {
+    background-color: #e3f2fd;
+    font-weight: 500;
+}
+
+.autocomplete-divider {
+    height: 1px;
+    background-color: #ddd;
+    margin: 4px 0;
+}
+
+.autocomplete-custom {
+    color: #0366d6;
+    font-size: 13px;
+}
+
+.autocomplete-custom span {
+    color: #666;
+    margin-right: 4px;
+}
+
+.autocomplete-custom strong {
+    font-weight: 600;
+}
+
+/* Mobile responsiveness for autocomplete */
+@media (max-width: 768px) {
+    .autocomplete-dropdown {
+        max-height: 200px;
+    }
+
+    .autocomplete-item {
+        padding: 10px 12px;
+    }
+}
+
+/* Allow autocomplete items to display full text on hover */
+.autocomplete-item:hover {
+    white-space: normal;
+    word-break: break-word;
+}
+
+/* Override the table cell input styles for our autocomplete */
+td .autocomplete-input:hover {
+    border-color: #b3b3b3;
+    background-color: #fcfcfc;
+}
+
+td .autocomplete-input:focus {
+    border-color: #4dabf7;
+    box-shadow: 0 0 0 2px rgba(77, 171, 247, 0.2);
+    outline: none;
+    background-color: #fff;
+}

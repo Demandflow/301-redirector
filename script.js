@@ -411,16 +411,22 @@ function createTableRow(oldUrl, index, matchingNewUrl) {
     }
     row.appendChild(statusCell);
     
-    // New URL (target) cell
+    // New URL (target) cell with dropdown
     const newUrlCell = document.createElement('td');
+    
+    // Create autocomplete container
+    const autocompleteContainer = document.createElement('div');
+    autocompleteContainer.className = 'autocomplete-container';
+    
+    // Create input field
     const newUrlInput = document.createElement('input');
     newUrlInput.type = 'text';
-    newUrlInput.placeholder = 'Enter target URL';
+    newUrlInput.placeholder = 'Enter or select target URL';
+    newUrlInput.className = 'autocomplete-input';
     
     // Only set a value if there's a matching URL, otherwise leave it empty
     if (matchingNewUrl) {
         newUrlInput.value = matchingNewUrl.slug;
-        // Add title attribute to input for full path on hover
         newUrlInput.title = matchingNewUrl.slug;
     } else {
         newUrlInput.value = '';
@@ -428,12 +434,19 @@ function createTableRow(oldUrl, index, matchingNewUrl) {
     
     newUrlInput.dataset.index = index;
     
+    // Create dropdown for suggestions
+    const dropdownContainer = document.createElement('div');
+    dropdownContainer.className = 'autocomplete-dropdown';
+    
     // Add event listener to handle input changes
     newUrlInput.addEventListener('input', function(e) {
         updateRedirectCount();
         
         // Update title attribute to match current value
         e.target.title = e.target.value;
+        
+        // Show dropdown with filtered results
+        showAutocompleteDropdown(e.target, dropdownContainer);
         
         // Visual feedback when user inputs a target URL
         const hasValue = e.target.value.trim() !== '';
@@ -468,12 +481,27 @@ function createTableRow(oldUrl, index, matchingNewUrl) {
         }
     });
     
+    // Add focus event to show all suggestions
+    newUrlInput.addEventListener('focus', function(e) {
+        showAutocompleteDropdown(e.target, dropdownContainer, true);
+    });
+    
+    // Add blur event to hide dropdown (with delay to allow click)
+    newUrlInput.addEventListener('blur', function() {
+        setTimeout(() => {
+            dropdownContainer.innerHTML = '';
+            dropdownContainer.classList.remove('show');
+        }, 200);
+    });
+    
     // Highlight inputs that need attention
     if (!matchingNewUrl) {
         newUrlInput.classList.add('needs-attention');
     }
     
-    newUrlCell.appendChild(newUrlInput);
+    autocompleteContainer.appendChild(newUrlInput);
+    autocompleteContainer.appendChild(dropdownContainer);
+    newUrlCell.appendChild(autocompleteContainer);
     row.appendChild(newUrlCell);
     
     // Action cell with select dropdown instead of checkbox
@@ -525,6 +553,133 @@ function createTableRow(oldUrl, index, matchingNewUrl) {
     row.appendChild(actionCell);
     
     return row;
+}
+
+// Show autocomplete dropdown with suggestions
+function showAutocompleteDropdown(inputElement, dropdownElement, showAll = false) {
+    const inputValue = inputElement.value.toLowerCase();
+    
+    // Clear current dropdown
+    dropdownElement.innerHTML = '';
+    
+    // Filter new URLs based on input
+    let filteredUrls = [];
+    
+    if (showAll || inputValue.length > 0) {
+        // If showAll is true or there's input text, filter the URLs
+        filteredUrls = newUrls.filter(url => {
+            if (showAll && inputValue.length === 0) return true;
+            return url.slug.toLowerCase().includes(inputValue);
+        });
+        
+        // Sort the results: exact matches first, then by length
+        filteredUrls.sort((a, b) => {
+            const aExact = a.slug.toLowerCase() === inputValue;
+            const bExact = b.slug.toLowerCase() === inputValue;
+            
+            if (aExact && !bExact) return -1;
+            if (!aExact && bExact) return 1;
+            
+            return a.slug.length - b.slug.length;
+        });
+        
+        // Limit to first 15 items for performance
+        filteredUrls = filteredUrls.slice(0, 15);
+        
+        // If we have results to show
+        if (filteredUrls.length > 0) {
+            dropdownElement.classList.add('show');
+            
+            // Add a suggestion to create a custom entry if it doesn't match exactly
+            const exactMatch = filteredUrls.some(url => url.slug.toLowerCase() === inputValue);
+            
+            // Create dropdown items
+            filteredUrls.forEach(url => {
+                const item = document.createElement('div');
+                item.className = 'autocomplete-item';
+                item.textContent = url.slug;
+                item.title = url.slug; // For hover on long paths
+                
+                // Highlight if it's an exact match
+                if (url.slug.toLowerCase() === inputValue) {
+                    item.classList.add('exact-match');
+                }
+                
+                // Add click handler to select this item
+                item.addEventListener('click', function() {
+                    inputElement.value = url.slug;
+                    inputElement.title = url.slug;
+                    dropdownElement.innerHTML = '';
+                    dropdownElement.classList.remove('show');
+                    
+                    // Trigger input event to update UI state
+                    inputElement.dispatchEvent(new Event('input'));
+                });
+                
+                dropdownElement.appendChild(item);
+            });
+            
+            // If input has content but no exact match, add option to use custom value
+            if (inputValue.length > 0 && !exactMatch) {
+                // First add a divider
+                const divider = document.createElement('div');
+                divider.className = 'autocomplete-divider';
+                dropdownElement.appendChild(divider);
+                
+                // Then add the custom option
+                const customItem = document.createElement('div');
+                customItem.className = 'autocomplete-item autocomplete-custom';
+                customItem.innerHTML = `
+                    <span>Use custom value:</span>
+                    <strong>${inputValue.startsWith('/') ? inputValue : '/' + inputValue}</strong>
+                `;
+                
+                // Add click handler to use the custom value
+                customItem.addEventListener('click', function() {
+                    const formattedValue = inputValue.startsWith('/') ? inputValue : '/' + inputValue;
+                    inputElement.value = formattedValue;
+                    inputElement.title = formattedValue;
+                    dropdownElement.innerHTML = '';
+                    dropdownElement.classList.remove('show');
+                    
+                    // Trigger input event to update UI state
+                    inputElement.dispatchEvent(new Event('input'));
+                });
+                
+                dropdownElement.appendChild(customItem);
+            }
+        } else if (inputValue.length > 0) {
+            // No matches but has input, show option to create custom value
+            dropdownElement.classList.add('show');
+            
+            const customItem = document.createElement('div');
+            customItem.className = 'autocomplete-item autocomplete-custom';
+            customItem.innerHTML = `
+                <span>Use custom value:</span>
+                <strong>${inputValue.startsWith('/') ? inputValue : '/' + inputValue}</strong>
+            `;
+            
+            // Add click handler
+            customItem.addEventListener('click', function() {
+                const formattedValue = inputValue.startsWith('/') ? inputValue : '/' + inputValue;
+                inputElement.value = formattedValue;
+                inputElement.title = formattedValue;
+                dropdownElement.innerHTML = '';
+                dropdownElement.classList.remove('show');
+                
+                // Trigger input event to update UI state
+                inputElement.dispatchEvent(new Event('input'));
+            });
+            
+            dropdownElement.appendChild(customItem);
+        } else {
+            // No input and not showing all, hide dropdown
+            dropdownElement.classList.remove('show');
+        }
+    } else {
+        // Hide dropdown if no input and not showing all
+        dropdownElement.classList.remove('show');
+    }
 }
 
 // Bulk Action Functions

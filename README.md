@@ -1,6 +1,49 @@
 # 301 Redirect Manager
 
-A simple, browser-based tool to help manage 301 redirects from Screaming Frog CSV exports.
+A simple, user-friendly web application for managing 301 redirects from Screaming Frog CSV exports.
+
+## Key Features
+
+- **Intuitive Interface**: Easily manage redirects from old URLs to new URLs with a clean, spreadsheet-like interface.
+- **CSV Import**: Import URLs directly from Screaming Frog CSV exports.
+- **Smart Matching**: Automatically identifies exact URL matches between old and new sites.
+- **Intelligent URL Selection**: Dropdown autocomplete for selecting target URLs from your new site, ensuring redirects only point to valid pages.
+- **URL Filtering**: Automatically excludes URLs with 301 or 404 status codes.
+- **Bulk Management**: Quickly check or uncheck multiple URLs at once.
+- **Visual Feedback**: Clear visual cues for matched, unmatched, and mapped URLs.
+- **CSV Export**: Generate a clean CSV with source and target URLs for implementing redirects.
+
+## Usage
+
+1. **Set Your Domain**: (Optional) Enter your domain to improve URL parsing and slug extraction.
+2. **Import Old URLs**: Upload a Screaming Frog CSV export from your old site.
+3. **Import New URLs**: Upload a Screaming Frog CSV export from your new site.
+4. **Map Redirects**: For each old URL:
+   - The system will automatically match identical URLs
+   - For unmatched URLs, use the dropdown to select from available new URLs
+   - The dropdown will filter as you type to help find relevant matches
+   - You can also enter custom URLs if needed
+5. **Manage Bulk Actions**: Use the buttons to check/uncheck redirects in bulk.
+6. **Export**: Generate a clean CSV file with your redirect mappings.
+
+## Technical Details
+
+- Built with vanilla JavaScript, HTML, and CSS.
+- No server-side processing - everything happens in your browser.
+- No external dependencies required.
+- Works with standard Screaming Frog CSV exports.
+
+## Tips
+
+- URLs with status codes 301 or 404 are automatically filtered out.
+- Matched URLs are grayed out and moved to the bottom for clarity.
+- Unmapped URLs remain at the top, making it easy to focus on what needs attention.
+- You can use the "Skip" option for URLs you don't want to redirect.
+- Target URLs can only be selected from your new site list, preventing broken redirects.
+
+## Browser Support
+
+Works in all modern browsers (Chrome, Firefox, Safari, Edge).
 
 ## Features
 
@@ -90,10 +133,6 @@ source,target
 /old-page,/new-page
 ```
 
-## Technical Details
-
-This is a client-side application built with vanilla HTML, CSS, and JavaScript. It runs entirely in your browser and doesn't send any data to external servers. All processing happens locally on your device.
-
 ## Customization
 
 With the code now split into separate files, it's easier to customize:
@@ -106,4 +145,4 @@ With the code now split into separate files, it's easier to customize:
 
 - The tool extracts URL slugs based on the domain you provide. Make sure to enter your domain correctly.
 - The CSV parser handles basic CSV formats. For complex CSVs with special characters, you might need to pre-process your files.
-- There's a limit to how large a CSV file can be processed in the browser. Very large files (tens of thousands of rows) might cause performance issues. # 301-redirector
+- There's a limit to how large a CSV file can be processed in the browser. Very large files (tens of thousands of rows) might cause performance issues.
