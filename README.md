@@ -8,7 +8,7 @@ A simple, user-friendly web application for managing 301 redirects from Screamin
 - **CSV Import**: Import URLs directly from Screaming Frog CSV exports.
 - **Smart Matching**: Automatically identifies exact URL matches between old and new sites.
 - **Intelligent URL Selection**: Dropdown autocomplete for selecting target URLs from your new site, ensuring redirects only point to valid pages.
-- **URL Filtering**: Automatically excludes URLs with 301 or 404 status codes.
+- **URL Filtering**: Automatically excludes URLs with 301, 404, or 502 status codes from both old and new site imports.
 - **Bulk Management**: Quickly check or uncheck multiple URLs at once.
 - **Visual Feedback**: Clear visual cues for matched, unmatched, and mapped URLs.
 - **CSV Export**: Generate a clean CSV with source and target URLs for implementing redirects.
@@ -16,8 +16,8 @@ A simple, user-friendly web application for managing 301 redirects from Screamin
 ## Usage
 
 1. **Set Your Domain**: (Optional) Enter your domain to improve URL parsing and slug extraction.
-2. **Import Old URLs**: Upload a Screaming Frog CSV export from your old site.
-3. **Import New URLs**: Upload a Screaming Frog CSV export from your new site.
+2. **Import Old URLs**: Upload a Screaming Frog CSV export from your old site. URLs with status codes 301, 404, or 502 will be automatically filtered out.
+3. **Import New URLs**: Upload a Screaming Frog CSV export from your new site. URLs with status codes 301, 404, or 502 will also be automatically filtered out.
 4. **Map Redirects**: For each old URL:
    - The system will automatically match identical URLs
    - For unmatched URLs, use the dropdown to select from available new URLs
@@ -35,7 +35,7 @@ A simple, user-friendly web application for managing 301 redirects from Screamin
 
 ## Tips
 
-- URLs with status codes 301 or 404 are automatically filtered out.
+- URLs with status codes 301, 404, or 502 are automatically filtered out from both old and new site imports.
 - Matched URLs are grayed out and moved to the bottom for clarity.
 - Unmapped URLs remain at the top, making it easy to focus on what needs attention.
 - You can use the "Skip" option for URLs you don't want to redirect.
@@ -56,7 +56,7 @@ Works in all modern browsers (Chrome, Firefox, Safari, Edge).
 - Bulk actions to quickly manage multiple redirects
 - Modern spreadsheet-like interface similar to Airtable
 - Export a CSV file with source and target URLs for implementing redirects
-- Automatically filters out URLs with status codes 301 or 404
+- Automatically filters out URLs with status codes 301, 404, or 502 from both old and new site imports
 - Prioritizes URLs that need attention by placing them at the top
 - Moves matched URLs to the bottom and grays them out for clarity
 
@@ -74,11 +74,11 @@ The application is organized into three files:
 3. *Optional:* Enter your domain (e.g., `https://www.example.com`) if your URLs include the full domain - this helps extract just the slug portion
    - If your URLs are already in slug format (e.g., "/path/to/page"), you can skip this step
 4. Add your old URLs using one or both of these methods:
-   - Upload a Screaming Frog CSV containing your old URLs (URLs with status codes 301 or 404 are automatically filtered out)
+   - Upload a Screaming Frog CSV containing your old URLs (URLs with status codes 301, 404, or 502 are automatically filtered out)
    - Manually add individual old URLs using the form below the upload
    - **Important:** If your site already has existing redirects in place, manually add these as old URLs to ensure they're included in your redirect management
 5. Add your new URLs using one or both of these methods:
-   - Upload a CSV with new URLs
+   - Upload a CSV with new URLs (URLs with status codes 301, 404, or 502 are automatically filtered out)
    - Manually add individual new URLs
 6. Review the table of old URLs and:
    - URLs needing attention are highlighted at the top with empty target fields
@@ -114,7 +114,7 @@ For large datasets, the bulk action buttons provide efficient ways to manage red
 ## CSV Format
 
 ### Input CSV Format (Screaming Frog)
-The tool expects a Screaming Frog CSV with an "Address" column containing full URLs. It will also look for a "Status Code" column to filter out 301 and 404 pages.
+The tool expects a Screaming Frog CSV with an "Address" column containing full URLs. It will also look for a "Status Code" column to filter out URLs with status codes 301, 404, and 502.
 
 Example:
 ```
@@ -122,6 +122,8 @@ Address,Status Code,Status,Indexability
 https://www.example.com/,200,OK,Indexable
 https://www.example.com/old-page,200,OK,Indexable
 https://www.example.com/redirect-page,301,Moved Permanently,Not Indexable
+https://www.example.com/not-found,404,Not Found,Not Indexable
+https://www.example.com/server-error,502,Bad Gateway,Not Indexable
 ```
 
 ### Output CSV Format

@@ -149,11 +149,11 @@ function handleOldCsvUpload(event) {
                 h.toLowerCase().includes('status code') || 
                 h.toLowerCase() === 'code');
             
-            // Filter the data to exclude 301 and 404 status codes
+            // Filter the data to exclude 301, 404, and 502 status codes
             const filteredData = statusCodeColumn ? 
                 data.filter(row => {
                     const statusCode = row[statusCodeColumn];
-                    return statusCode !== "301" && statusCode !== "404";
+                    return !["301", "404", "502"].includes(statusCode);
                 }) : data;
             
             // Get excluded count
@@ -180,7 +180,7 @@ function handleOldCsvUpload(event) {
             
             let successMessage = `Success! Loaded ${oldUrls.length} URLs.`;
             if (excludedCount > 0) {
-                successMessage += ` (Excluded ${excludedCount} URLs with status codes 301 or 404)`;
+                successMessage += ` (Excluded ${excludedCount} URLs with status codes 301, 404, or 502)`;
             }
             
             oldUrlStatus.textContent = successMessage;
@@ -222,11 +222,26 @@ function handleNewCsvUpload(event) {
                 return;
             }
             
+            // Find status code column if it exists
+            const statusCodeColumn = headers.find(h => 
+                h.toLowerCase().includes('status code') || 
+                h.toLowerCase() === 'code');
+            
+            // Filter the data to exclude 301, 404, and 502 status codes
+            const filteredData = statusCodeColumn ? 
+                data.filter(row => {
+                    const statusCode = row[statusCodeColumn];
+                    return !["301", "404", "502"].includes(statusCode);
+                }) : data;
+            
+            // Get excluded count
+            const excludedCount = data.length - filteredData.length;
+            
             // Store existing URLs before adding new ones
             const existingUrls = [...newUrls];
             
             // Add new URLs from the CSV
-            const newUrlsFromCsv = data.map(row => {
+            const newUrlsFromCsv = filteredData.map(row => {
                 const fullUrl = row[urlColumn];
                 return {
                     fullUrl,
@@ -236,14 +251,21 @@ function handleNewCsvUpload(event) {
             });
             
             // Filter out duplicates
+            let addedCount = 0;
             newUrlsFromCsv.forEach(newUrl => {
                 const isDuplicate = existingUrls.some(url => url.slug === newUrl.slug);
                 if (!isDuplicate && newUrl.slug) {
                     newUrls.push(newUrl);
+                    addedCount++;
                 }
             });
             
-            newUrlStatus.textContent = `Success! Added ${newUrlsFromCsv.length} new URLs.`;
+            let successMessage = `Success! Added ${addedCount} new URLs.`;
+            if (excludedCount > 0) {
+                successMessage += ` (Excluded ${excludedCount} URLs with status codes 301, 404, or 502)`;
+            }
+            
+            newUrlStatus.textContent = successMessage;
             newUrlStatus.className = 'status-message success';
             
             // Update UI

@@ -16,9 +16,10 @@
         <ol>
             <li>Optionally enter your domain to help with URL parsing.</li>
             <li>Upload a CSV from Screaming Frog with your old URLs (e.g., old_site_urls.csv). URLs with status codes
-                301 or 404 will be automatically excluded.</li>
+                301, 404, or 502 will be automatically excluded.</li>
             <li>Upload a CSV from Screaming Frog with your new URLs (e.g., new_site_urls.csv) or manually add new URLs
-                to help with matching.</li>
+                to help with matching. URLs with status codes 301, 404, or 502 will also be automatically excluded from
+                new URLs.</li>
             <li>In the redirects table, you'll see all your old URLs. The system will automatically match URLs that are
                 identical.</li>
             <li>For URLs that don't have a match, you can select a target URL from the dropdown, which shows all
