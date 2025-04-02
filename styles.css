@@ -685,3 +685,67 @@ td .autocomplete-input:focus {
     outline: none;
     background-color: #fff;
 }
+
+/* Conflict warnings */
+.conflict-warning {
+    padding: 8px 12px;
+    margin-top: 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    position: relative;
+    background-color: #fff8e1;
+    color: #856404;
+    border-left: 3px solid #ffeeba;
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.conflict-warning::before {
+    content: "⚠️";
+    margin-right: 8px;
+    font-size: 14px;
+}
+
+.conflict-warning.conflict-critical {
+    background-color: #ffebee;
+    color: #721c24;
+    border-left-color: #f8d7da;
+}
+
+.conflict-warning.conflict-critical::before {
+    content: "⛔";
+}
+
+.conflict-warning.hidden {
+    display: none;
+}
+
+/* Existing redirects list styling */
+#existingRedirectsList {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+#existingRedirectsList div {
+    display: flex;
+    padding: 5px 8px;
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+}
+
+#existingRedirectsList div:last-child {
+    border-bottom: none;
+}
+
+/* Arrow styling for redirect display */
+.redirects-list div::after {
+    content: "→";
+    margin: 0 5px;
+    color: #6c757d;
+}
+
+/* Improved spacing for the redirect sections */
+.section+.section {
+    margin-top: 25px;
+}

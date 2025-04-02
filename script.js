@@ -1,11 +1,12 @@
 // Global variables
 let oldUrls = [];
 let newUrls = [];
+let existingRedirects = []; // Store existing redirects
 
 // DOM Elements
-const domainInput = document.getElementById('domainInput');
 const oldCsvInput = document.getElementById('oldCsvInput');
 const newCsvInput = document.getElementById('newCsvInput');
+const existingRedirectsInput = document.getElementById('existingRedirectsInput');
 const manualUrlInput = document.getElementById('manualUrlInput');
 const addManualUrlButton = document.getElementById('addManualUrl');
 const oldUrlStatus = document.getElementById('oldUrlStatus');
@@ -17,6 +18,9 @@ const exportCsvButton = document.getElementById('exportCsv');
 const redirectCount = document.getElementById('redirectCount');
 const newUrlsContainer = document.getElementById('newUrlsContainer');
 const newUrlsList = document.getElementById('newUrlsList');
+const existingRedirectsContainer = document.getElementById('existingRedirectsContainer');
+const existingRedirectsList = document.getElementById('existingRedirectsList');
+const existingRedirectStatus = document.getElementById('existingRedirectStatus');
 
 // New DOM elements for old URL manual entry
 const manualOldUrlInput = document.getElementById('manualOldUrlInput');
@@ -34,6 +38,7 @@ const checkMappedBtn = document.getElementById('checkMappedBtn');
 // Event Listeners
 oldCsvInput.addEventListener('change', handleOldCsvUpload);
 newCsvInput.addEventListener('change', handleNewCsvUpload);
+existingRedirectsInput.addEventListener('change', handleExistingRedirectsUpload);
 addManualUrlButton.addEventListener('click', addManualUrl);
 addManualOldUrlButton.addEventListener('click', addManualOldUrl);
 exportCsvButton.addEventListener('click', exportToCsv);
@@ -48,31 +53,22 @@ checkMappedBtn.addEventListener('click', checkMapped);
 function extractSlug(url) {
     if (!url) return '';
     
-    const domain = domainInput.value.trim();
     let slug = url.trim();
     
-    // If domain is set, try to remove it from the URL
-    if (domain) {
-        // Remove protocol and domain
-        slug = slug.replace(new RegExp(`^https?://${domain.replace(/^https?:\/\//, '').replace(/\./g, '\\.')}`, 'i'), '');
-        // Also try without protocol
-        slug = slug.replace(new RegExp(`^${domain.replace(/^https?:\/\//, '').replace(/\./g, '\\.')}`, 'i'), '');
+    // Check if it's already a slug (starts with /)
+    if (slug.startsWith('/')) {
+        // Already a slug, no changes needed
+        return slug;
     } else {
-        // If no domain is set, just try to extract the path
-        // First check if it's already a slug (starts with /)
-        if (slug.startsWith('/')) {
-            // Already a slug, no changes needed
-        } else {
-            // Try to extract path from a URL
-            try {
-                const urlObj = new URL(slug);
-                slug = urlObj.pathname + urlObj.search + urlObj.hash;
-            } catch (e) {
-                // If not a valid URL, just use as is
-                // Make sure it starts with /
-                if (!slug.startsWith('/') && slug !== '') {
-                    slug = '/' + slug;
-                }
+        // Try to extract path from a URL
+        try {
+            const urlObj = new URL(slug);
+            slug = urlObj.pathname + urlObj.search + urlObj.hash;
+        } catch (e) {
+            // If not a valid URL, just use as is
+            // Make sure it starts with /
+            if (!slug.startsWith('/') && slug !== '') {
+                slug = '/' + slug;
             }
         }
     }
@@ -83,6 +79,166 @@ function extractSlug(url) {
     }
     
     return slug;
+}
+
+// Handle Existing Redirects Upload
+function handleExistingRedirectsUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const csvContent = e.target.result;
+            const { headers, data } = parseCSV(csvContent);
+            
+            // Clear existing redirects
+            existingRedirects = [];
+            
+            // Check if this is a standard source,target format or needs column identification
+            const sourceColumn = headers.find(h => 
+                h.toLowerCase() === 'source' || 
+                h.toLowerCase().includes('old') ||
+                h.toLowerCase().includes('from'));
+                
+            const targetColumn = headers.find(h => 
+                h.toLowerCase() === 'target' || 
+                h.toLowerCase().includes('new') ||
+                h.toLowerCase().includes('to'));
+            
+            if (!sourceColumn || !targetColumn) {
+                existingRedirectStatus.textContent = 'Error: Could not identify source and target columns in the CSV. Please ensure your CSV has "source" and "target" columns.';
+                existingRedirectStatus.className = 'status-message error';
+                return;
+            }
+            
+            // Add redirects from the CSV
+            data.forEach(row => {
+                const sourceUrl = extractSlug(row[sourceColumn]);
+                const targetUrl = extractSlug(row[targetColumn]);
+                
+                if (sourceUrl && targetUrl) {
+                    existingRedirects.push({
+                        source: sourceUrl,
+                        target: targetUrl
+                    });
+                }
+            });
+            
+            // Display success message
+            existingRedirectStatus.textContent = `Success! Loaded ${existingRedirects.length} existing redirects.`;
+            existingRedirectStatus.className = 'status-message success';
+            
+            // Display existing redirects
+            displayExistingRedirects();
+            
+            // Update redirect table to check for conflicts
+            updateRedirectTable();
+        } catch (error) {
+            existingRedirectStatus.textContent = `Error: ${error.message}`;
+            existingRedirectStatus.className = 'status-message error';
+        }
+    };
+    reader.readAsText(file);
+}
+
+// Display list of existing redirects
+function displayExistingRedirects() {
+    if (existingRedirects.length > 0) {
+        existingRedirectsContainer.classList.remove('hidden');
+        existingRedirectsList.innerHTML = existingRedirects.map(redirect => 
+            `<div title="${redirect.source} → ${redirect.target}">${redirect.source} → ${redirect.target}</div>`
+        ).join('');
+    } else {
+        existingRedirectsContainer.classList.add('hidden');
+    }
+}
+
+// Check if a redirect would create a loop or conflict
+function checkRedirectConflicts(sourceSlug, targetSlug) {
+    if (!sourceSlug || !targetSlug) return { hasConflict: false };
+    
+    // Direct loop: A → A
+    if (sourceSlug === targetSlug) {
+        return {
+            hasConflict: true,
+            type: 'self-redirect',
+            message: 'Self-redirect: The source and target URLs are the same'
+        };
+    }
+    
+    // Check existing redirects for conflicts
+    for (const redirect of existingRedirects) {
+        // Case 1: Creating a redirect that already exists but with a different target
+        // Existing: A → B, New: A → C
+        if (redirect.source === sourceSlug && redirect.target !== targetSlug) {
+            return {
+                hasConflict: true,
+                type: 'different-target',
+                message: `Conflict: This URL already redirects to ${redirect.target}`
+            };
+        }
+        
+        // Case 2: Direct loop with existing redirect
+        // Existing: A → B, New: B → A
+        if (redirect.source === targetSlug && redirect.target === sourceSlug) {
+            return {
+                hasConflict: true,
+                type: 'direct-loop',
+                message: 'Redirect loop: This would create a direct redirect loop'
+            };
+        }
+        
+        // Case 3: Redirecting to a URL that is itself being redirected
+        // Existing: B → C, New: A → B
+        if (redirect.source === targetSlug) {
+            return {
+                hasConflict: true,
+                type: 'chained-redirect',
+                message: `Chain warning: The target URL redirects to ${redirect.target}`
+            };
+        }
+        
+        // Case 4: Creating a redirect for a URL that already has redirects pointing to it
+        // Existing: A → B, New: B → C
+        if (redirect.target === sourceSlug) {
+            return {
+                hasConflict: true,
+                type: 'target-moved',
+                message: 'Warning: Other URLs redirect to this source'
+            };
+        }
+    }
+    
+    // Check proposed redirects in the table
+    const rows = document.querySelectorAll('#redirectTableBody tr');
+    for (const row of rows) {
+        const rowSource = row.querySelector('td:first-child').textContent;
+        const rowTarget = row.querySelector('td:nth-child(3) input').value;
+        
+        // Skip empty targets or self
+        if (!rowTarget || rowSource === sourceSlug) continue;
+        
+        // Case 5: Creating a redirect that conflicts with a proposed redirect
+        if (rowSource === sourceSlug && rowTarget !== targetSlug) {
+            return {
+                hasConflict: true,
+                type: 'proposed-conflict',
+                message: 'Conflict: This URL is already being redirected in the table'
+            };
+        }
+        
+        // Case 6: Direct loop with a proposed redirect
+        if (rowSource === targetSlug && rowTarget === sourceSlug) {
+            return {
+                hasConflict: true,
+                type: 'proposed-loop',
+                message: 'Redirect loop: This would create a loop with another proposed redirect'
+            };
+        }
+    }
+    
+    return { hasConflict: false };
 }
 
 // Parse CSV content
@@ -440,6 +596,11 @@ function createTableRow(oldUrl, index, matchingNewUrl) {
     const autocompleteContainer = document.createElement('div');
     autocompleteContainer.className = 'autocomplete-container';
     
+    // Create conflict warning element
+    const conflictWarning = document.createElement('div');
+    conflictWarning.className = 'conflict-warning hidden';
+    autocompleteContainer.appendChild(conflictWarning);
+    
     // Create input field
     const newUrlInput = document.createElement('input');
     newUrlInput.type = 'text';
@@ -450,6 +611,20 @@ function createTableRow(oldUrl, index, matchingNewUrl) {
     if (matchingNewUrl) {
         newUrlInput.value = matchingNewUrl.slug;
         newUrlInput.title = matchingNewUrl.slug;
+        
+        // Check for conflicts with existing redirects
+        const conflict = checkRedirectConflicts(oldUrl.slug, matchingNewUrl.slug);
+        if (conflict.hasConflict) {
+            conflictWarning.textContent = conflict.message;
+            conflictWarning.classList.remove('hidden');
+            
+            // Add class based on conflict type
+            if (conflict.type === 'direct-loop' || conflict.type === 'proposed-loop' || conflict.type === 'self-redirect') {
+                conflictWarning.classList.add('conflict-critical');
+            } else {
+                conflictWarning.classList.add('conflict-warning');
+            }
+        }
     } else {
         newUrlInput.value = '';
     }
@@ -470,8 +645,31 @@ function createTableRow(oldUrl, index, matchingNewUrl) {
         // Show dropdown with filtered results
         showAutocompleteDropdown(e.target, dropdownContainer);
         
+        // Check for conflicts with the entered URL
+        const sourceSlug = oldUrl.slug;
+        const targetSlug = e.target.value.trim();
+        
+        // Clear previous conflict warnings
+        conflictWarning.textContent = '';
+        conflictWarning.className = 'conflict-warning hidden';
+        
+        if (targetSlug) {
+            const conflict = checkRedirectConflicts(sourceSlug, targetSlug);
+            if (conflict.hasConflict) {
+                conflictWarning.textContent = conflict.message;
+                conflictWarning.classList.remove('hidden');
+                
+                // Add class based on conflict type
+                if (conflict.type === 'direct-loop' || conflict.type === 'proposed-loop' || conflict.type === 'self-redirect') {
+                    conflictWarning.classList.add('conflict-critical');
+                } else {
+                    conflictWarning.classList.add('conflict-warning');
+                }
+            }
+        }
+        
         // Visual feedback when user inputs a target URL
-        const hasValue = e.target.value.trim() !== '';
+        const hasValue = targetSlug !== '';
         const row = e.target.closest('tr');
         
         if (hasValue) {
@@ -850,6 +1048,28 @@ function exportToCsv() {
     if (emptyTargets.length > 0) {
         alert(`${emptyTargets.length} redirect(s) are missing target URLs. Please enter target URLs for all selected redirects.`);
         return;
+    }
+    
+    // Check for critical conflicts
+    let hasCriticalConflicts = false;
+    const conflictMessages = [];
+    
+    redirects.forEach(redirect => {
+        const conflict = checkRedirectConflicts(redirect.source, redirect.target);
+        if (conflict.hasConflict && 
+            (conflict.type === 'direct-loop' || 
+             conflict.type === 'proposed-loop' || 
+             conflict.type === 'self-redirect')) {
+            hasCriticalConflicts = true;
+            conflictMessages.push(`${redirect.source} → ${redirect.target}: ${conflict.message}`);
+        }
+    });
+    
+    if (hasCriticalConflicts) {
+        const confirmExport = confirm(`Warning: The following critical conflicts were detected:\n\n${conflictMessages.join('\n')}\n\nThese will cause redirect loops. Do you still want to export?`);
+        if (!confirmExport) {
+            return;
+        }
     }
     
     // Create CSV content

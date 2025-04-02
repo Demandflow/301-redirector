@@ -7,6 +7,8 @@ A simple, user-friendly web application for managing 301 redirects from Screamin
 - **Intuitive Interface**: Easily manage redirects from old URLs to new URLs with a clean, spreadsheet-like interface.
 - **CSV Import**: Import URLs directly from Screaming Frog CSV exports.
 - **Smart Matching**: Automatically identifies exact URL matches between old and new sites.
+- **Conflict Detection**: Automatically identifies and warns about potential redirect loops and conflicts.
+- **Existing Redirects Support**: Import your current redirects to ensure new ones don't create conflicts.
 - **Intelligent URL Selection**: Dropdown autocomplete for selecting target URLs from your new site, ensuring redirects only point to valid pages.
 - **URL Filtering**: Automatically excludes URLs with 301, 404, or 502 status codes from both old and new site imports.
 - **Bulk Management**: Quickly check or uncheck multiple URLs at once.
@@ -15,16 +17,21 @@ A simple, user-friendly web application for managing 301 redirects from Screamin
 
 ## Usage
 
-1. **Set Your Domain**: (Optional) Enter your domain to improve URL parsing and slug extraction.
+1. **Import Existing Redirects**: (Optional) Upload any redirects already implemented on your site to prevent conflicts.
 2. **Import Old URLs**: Upload a Screaming Frog CSV export from your old site. URLs with status codes 301, 404, or 502 will be automatically filtered out.
 3. **Import New URLs**: Upload a Screaming Frog CSV export from your new site. URLs with status codes 301, 404, or 502 will also be automatically filtered out.
 4. **Map Redirects**: For each old URL:
    - The system will automatically match identical URLs
    - For unmatched URLs, use the dropdown to select from available new URLs
    - The dropdown will filter as you type to help find relevant matches
-   - You can also enter custom URLs if needed
-5. **Manage Bulk Actions**: Use the buttons to check/uncheck redirects in bulk.
-6. **Export**: Generate a clean CSV file with your redirect mappings.
+   - Pay attention to any conflict warnings that appear
+5. **Review Conflicts**: The tool will automatically detect and warn about:
+   - Direct redirect loops (A → B, B → A)
+   - Self-redirects (A → A)
+   - Conflicts with existing redirects
+   - Chains of redirects that could be simplified
+6. **Manage Bulk Actions**: Use the buttons to check/uncheck redirects in bulk.
+7. **Export**: Generate a clean CSV file with your redirect mappings. The tool will provide a final warning if critical conflicts remain.
 
 ## Technical Details
 
@@ -40,6 +47,30 @@ A simple, user-friendly web application for managing 301 redirects from Screamin
 - Unmapped URLs remain at the top, making it easy to focus on what needs attention.
 - You can use the "Skip" option for URLs you don't want to redirect.
 - Target URLs can only be selected from your new site list, preventing broken redirects.
+- Red warnings indicate critical conflicts that will create redirect loops.
+- Yellow warnings indicate potential issues that may not be problematic but should be reviewed.
+
+## Conflict Detection
+
+The tool detects several types of redirect conflicts:
+
+1. **Self-Redirects**: When a URL redirects to itself (A → A)
+2. **Direct Loops**: When two URLs redirect to each other (A → B, B → A)
+3. **Different Targets**: When an existing redirect points to a different target (Existing: A → B, New: A → C)
+4. **Chained Redirects**: When the target of a redirect is itself being redirected (B → C, A → B)
+5. **Target Moved**: When other URLs redirect to a URL you're now redirecting elsewhere
+
+## CSV Format for Existing Redirects
+
+The tool expects a CSV with source and target columns for existing redirects:
+
+```
+source,target
+/old-page,/new-page
+/another-old-page,/another-new-page
+```
+
+You can also use columns named "from/to" or "old/new" and the tool will automatically detect them.
 
 ## Browser Support
 
